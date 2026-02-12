@@ -1,3 +1,8 @@
+const themeToggle = document.getElementById('theme-toggle');
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+});
+
 class LottoGenerator extends HTMLElement {
     constructor() {
         super();
@@ -17,18 +22,24 @@ class LottoGenerator extends HTMLElement {
 
         const style = document.createElement('style');
         style.textContent = `
+            :host {
+                --primary-color: ${getComputedStyle(document.documentElement).getPropertyValue('--primary-color')};
+                --secondary-color: ${getComputedStyle(document.documentElement).getPropertyValue('--secondary-color')};
+                --white: ${getComputedStyle(document.documentElement).getPropertyValue('--white')};
+            }
             .lotto-generator {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 padding: 2rem;
-                background-color: var(--white, #fff);
+                background-color: ${getComputedStyle(document.documentElement).getPropertyValue('--background-color') === getComputedStyle(document.documentElement).getPropertyValue('--background-color-light') ? 'var(--white)' : '#2c2c2c'};
                 border-radius: 1rem;
                 box-shadow: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.15);
+                transition: background-color 0.3s ease;
             }
             h1 {
                 font-size: 2rem;
-                color: var(--primary-color, #007BFF);
+                color: var(--primary-color);
                 margin-bottom: 1.5rem;
             }
             .numbers-container {
@@ -43,24 +54,35 @@ class LottoGenerator extends HTMLElement {
                 width: 3rem;
                 height: 3rem;
                 border-radius: 50%;
-                background-color: var(--secondary-color, #6C757D);
-                color: var(--white, #fff);
+                background-color: var(--secondary-color);
+                color: var(--white);
                 font-size: 1.5rem;
                 font-weight: bold;
+                animation: reveal 0.5s ease-in-out forwards;
+            }
+            @keyframes reveal {
+                from {
+                    transform: scale(0);
+                    opacity: 0;
+                }
+                to {
+                    transform: scale(1);
+                    opacity: 1;
+                }
             }
             button {
                 padding: 0.75rem 1.5rem;
                 border: none;
                 border-radius: 0.5rem;
-                background-color: var(--primary-color, #007BFF);
-                color: var(--white, #fff);
+                background-color: var(--primary-color);
+                color: var(--white);
                 font-size: 1rem;
                 cursor: pointer;
                 transition: background-color 0.3s ease;
                 box-shadow: 0 4px 6px rgba(0, 123, 255, 0.2), 0 1px 3px rgba(0, 123, 255, 0.1);
             }
             button:hover {
-                background-color: #0056b3;
+                filter: brightness(1.2);
             }
         `;
 
@@ -73,6 +95,36 @@ class LottoGenerator extends HTMLElement {
         button.addEventListener('click', () => this.generateNumbers());
 
         this.generateNumbers();
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    const isDarkMode = document.body.classList.contains('dark-mode');
+                    this.updateTheme(isDarkMode);
+                }
+            });
+        });
+
+        observer.observe(document.body, {
+            attributes: true
+        });
+
+        this.updateTheme(document.body.classList.contains('dark-mode'));
+
+    }
+
+    updateTheme(isDarkMode) {
+        const style = this.shadowRoot.querySelector('style');
+        const wrapper = this.shadowRoot.querySelector('.lotto-generator');
+        if(isDarkMode) {
+            style.textContent = style.textContent.replace(/--primary-color:.*/, `--primary-color: ${getComputedStyle(document.documentElement).getPropertyValue('--primary-color-dark')};`);
+            style.textContent = style.textContent.replace(/--secondary-color:.*/, `--secondary-color: ${getComputedStyle(document.documentElement).getPropertyValue('--secondary-color-dark')};`);
+            wrapper.style.backgroundColor = '#2c2c2c';
+        } else {
+            style.textContent = style.textContent.replace(/--primary-color:.*/, `--primary-color: ${getComputedStyle(document.documentElement).getPropertyValue('--primary-color-light')};`);
+            style.textContent = style.textContent.replace(/--secondary-color:.*/, `--secondary-color: ${getComputedStyle(document.documentElement).getPropertyValue('--secondary-color-light')};`);
+            wrapper.style.backgroundColor = 'var(--white)';
+        }
     }
 
     generateNumbers() {
@@ -83,12 +135,13 @@ class LottoGenerator extends HTMLElement {
             numbers.add(Math.floor(Math.random() * 45) + 1);
         }
 
-        for (const number of [...numbers].sort((a, b) => a - b)) {
+        [...numbers].sort((a, b) => a - b).forEach((number, index) => {
             const numberElement = document.createElement('div');
             numberElement.setAttribute('class', 'number');
             numberElement.textContent = number;
+            numberElement.style.animationDelay = `${index * 0.1}s`;
             numbersContainer.appendChild(numberElement);
-        }
+        });
     }
 }
 

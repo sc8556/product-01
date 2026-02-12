@@ -1,6 +1,11 @@
 const themeToggle = document.getElementById('theme-toggle');
+const themes = ['pink', 'dark', 'light'];
+let currentThemeIndex = 0;
+document.body.dataset.theme = themes[currentThemeIndex];
+
 themeToggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
+    currentThemeIndex = (currentThemeIndex + 1) % themes.length;
+    document.body.dataset.theme = themes[currentThemeIndex];
 });
 
 class LottoGenerator extends HTMLElement {
@@ -22,17 +27,12 @@ class LottoGenerator extends HTMLElement {
 
         const style = document.createElement('style');
         style.textContent = `
-            :host {
-                --primary-color: ${getComputedStyle(document.documentElement).getPropertyValue('--primary-color')};
-                --secondary-color: ${getComputedStyle(document.documentElement).getPropertyValue('--secondary-color')};
-                --white: ${getComputedStyle(document.documentElement).getPropertyValue('--white')};
-            }
             .lotto-generator {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
                 padding: 2rem;
-                background-color: ${getComputedStyle(document.documentElement).getPropertyValue('--background-color') === getComputedStyle(document.documentElement).getPropertyValue('--background-color-light') ? 'var(--white)' : '#2c2c2c'};
+                background-color: var(--component-background);
                 border-radius: 1rem;
                 box-shadow: 0 10px 20px rgba(0,0,0,0.1), 0 6px 6px rgba(0,0,0,0.15);
                 transition: background-color 0.3s ease;
@@ -95,36 +95,6 @@ class LottoGenerator extends HTMLElement {
         button.addEventListener('click', () => this.generateNumbers());
 
         this.generateNumbers();
-
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.attributeName === 'class') {
-                    const isDarkMode = document.body.classList.contains('dark-mode');
-                    this.updateTheme(isDarkMode);
-                }
-            });
-        });
-
-        observer.observe(document.body, {
-            attributes: true
-        });
-
-        this.updateTheme(document.body.classList.contains('dark-mode'));
-
-    }
-
-    updateTheme(isDarkMode) {
-        const style = this.shadowRoot.querySelector('style');
-        const wrapper = this.shadowRoot.querySelector('.lotto-generator');
-        if(isDarkMode) {
-            style.textContent = style.textContent.replace(/--primary-color:.*/, `--primary-color: ${getComputedStyle(document.documentElement).getPropertyValue('--primary-color-dark')};`);
-            style.textContent = style.textContent.replace(/--secondary-color:.*/, `--secondary-color: ${getComputedStyle(document.documentElement).getPropertyValue('--secondary-color-dark')};`);
-            wrapper.style.backgroundColor = '#2c2c2c';
-        } else {
-            style.textContent = style.textContent.replace(/--primary-color:.*/, `--primary-color: ${getComputedStyle(document.documentElement).getPropertyValue('--primary-color-light')};`);
-            style.textContent = style.textContent.replace(/--secondary-color:.*/, `--secondary-color: ${getComputedStyle(document.documentElement).getPropertyValue('--secondary-color-light')};`);
-            wrapper.style.backgroundColor = 'var(--white)';
-        }
     }
 
     generateNumbers() {

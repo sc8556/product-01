@@ -2,20 +2,29 @@
     --primary-color-light: #007BFF;
     --secondary-color-light: #6C757D;
     --background-color-light: #f8f9fa;
+    --component-background-light: #fff;
     --text-color-light: #343a40;
-    --white: #fff;
 
     --primary-color-dark: #00A8FF;
     --secondary-color-dark: #495057;
     --background-color-dark: #121212;
+    --component-background-dark: #2c2c2c;
     --text-color-dark: #e0e0e0;
+
+    --primary-color-pink: #FF69B4;
+    --secondary-color-pink: #C71585;
+    --background-color-pink: #FFF0F5;
+    --component-background-pink: #FFC0CB;
+    --text-color-pink: #333;
 
     --font-family: 'Arial', sans-serif;
 
     --primary-color: var(--primary-color-light);
     --secondary-color: var(--secondary-color-light);
     --background-color: var(--background-color-light);
+    --component-background: var(--component-background-light);
     --text-color: var(--text-color-light);
+    --white: #fff;
 }
 
 body {
@@ -31,11 +40,28 @@ body {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body.dark-mode {
+body[data-theme="light"] {
+    --primary-color: var(--primary-color-light);
+    --secondary-color: var(--secondary-color-light);
+    --background-color: var(--background-color-light);
+    --component-background: var(--component-background-light);
+    --text-color: var(--text-color-light);
+}
+
+body[data-theme="dark"] {
     --primary-color: var(--primary-color-dark);
     --secondary-color: var(--secondary-color-dark);
     --background-color: var(--background-color-dark);
+    --component-background: var(--component-background-dark);
     --text-color: var(--text-color-dark);
+}
+
+body[data-theme="pink"] {
+    --primary-color: var(--primary-color-pink);
+    --secondary-color: var(--secondary-color-pink);
+    --background-color: var(--background-color-pink);
+    --component-background: var(--component-background-pink);
+    --text-color: var(--text-color-pink);
 }
 
 .theme-toggle-container {
